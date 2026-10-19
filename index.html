@@ -1,0 +1,1135 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>La Tappa</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#0f1420;--card:#182033;--card2:#202c47;--tx:#e8edf7;--mut:#8b97b3;--A:#ff4d6d;--B:#38bdf8;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--line:#2b3856}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:1040px;margin:0 auto;padding:14px 12px 60px}
+h1{margin:6px 0 0;font-size:26px}
+h2{margin:0 0 8px;font-size:18px}
+h3{margin:0 0 8px;font-size:15px;color:#c9d3ea}
+.sub{color:var(--mut);margin:2px 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 12px}
+.mut{color:var(--mut)}
+.err{color:var(--bad);min-height:20px;margin-top:6px}
+label{display:block;margin-bottom:10px;color:var(--mut);font-size:13px}
+input,select{background:#0f1729;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;width:100%}
+input:focus,select:focus{outline:2px solid #3b82f6}
+button{background:#2a3a5f;color:var(--tx);border:1px solid #3a4d7a;border-radius:8px;padding:9px 14px;font:inherit;cursor:pointer}
+button:hover:not(:disabled){background:#34497a}
+button:disabled{opacity:.45;cursor:default}
+button.big{background:#2563eb;border-color:#3b82f6;font-weight:700;padding:12px 18px}
+button.big:hover:not(:disabled){background:#2f6df0}
+.row{display:flex;gap:8px;margin:8px 0;align-items:center;flex-wrap:wrap}
+.row input{flex:1;min-width:120px}
+.story{font-size:14px;color:#c4cde4;line-height:1.55}
+.story b{color:#fff}
+.code{font-size:44px;letter-spacing:8px;font-weight:800;text-align:center;margin:6px 0;color:#fff}
+.hdr{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700;color:#0f1420}
+.pill.A{background:var(--A)}.pill.B{background:var(--B)}
+.ok{color:var(--ok)}.warn{color:var(--warn)}
+details{margin:6px 0}
+summary{cursor:pointer;color:#9db4ff;font-weight:600}
+details p,details li{color:#c4cde4;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:8px}
+.rc{background:var(--card2);border:2px solid transparent;border-radius:10px;padding:8px 10px;cursor:pointer;user-select:none}
+.rc:hover{border-color:#41558a}
+.rc.sel{border-color:var(--ok);background:#1b3a35}
+.rc b{display:block;font-size:14px}
+.rc i{display:block;font-style:normal;color:#ffd84d;font-size:12px;min-height:16px}
+.rc small{color:var(--mut);font-size:11px}
+.sts{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin:5px 0 3px}
+.sts span{background:rgba(56,189,248,calc(var(--v) * .075));border-radius:5px;text-align:center;padding:2px 0;line-height:1.1}
+.sts em{display:block;font-style:normal;font-size:9px;color:var(--mut)}
+.sts b{display:block!important;font-size:13px!important}
+.tb{display:inline-block;min-width:38px;text-align:center;padding:1px 6px;border-radius:6px;font-size:11px;font-weight:800;color:#0f1420}
+.tb.PIA{background:#7bd88f}.tb.SAL{background:#ff9f4a}.tb.DIS{background:#5aa9ff}.tb.PAV{background:#c9a36b}.tb.VOL{background:#ffd84d}
+.tr{border-top:1px solid var(--line);padding:9px 0;display:grid;grid-template-columns:150px 1fr auto 190px;gap:8px;align-items:center}
+.tr:first-of-type{border-top:0}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{padding:6px 9px;font-size:13px}
+.chip.on{background:#2563eb;border-color:#60a5fa}
+.chip small{color:var(--mut)}
+.chip b{color:#ffd84d;margin-left:3px}
+.stb{min-width:70px;font-weight:700}
+.stb.tira{background:#7c3a12;border-color:#d9772b;color:#ffd9b8}
+.cp{font-size:11px;padding:3px 8px;margin-left:6px}
+.pistacard svg{width:100%;height:auto;display:block}
+.topbar{display:flex;justify-content:space-between;gap:8px;color:#c9d3ea;font-weight:600;margin-bottom:4px;flex-wrap:wrap}
+.gap{text-align:center;font-size:18px;font-weight:700;margin:6px 0;min-height:28px}
+.gap small{display:block;font-size:12px;color:var(--mut);font-weight:400}
+.ctrl{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.ctrl button.on{background:#2563eb}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rd{background:var(--card2);border-radius:10px;padding:8px 10px;margin-bottom:8px;border-left:5px solid var(--c)}
+.rd.cotto{opacity:.6}
+.rn b{font-size:14px}
+.rn i{font-style:normal;color:#ffd84d;font-size:12px;margin-left:4px}
+.role{float:right;font-size:11px;color:var(--mut)}
+.tag{background:var(--bad);color:#fff;font-size:10px;font-weight:800;padding:0 6px;border-radius:5px;margin-left:5px}
+.bar{position:relative;height:14px;background:#0f1729;border-radius:7px;margin:6px 0;overflow:hidden}
+.fill{height:100%;width:100%;background:var(--ok);transition:width .1s}
+.entxt{position:absolute;left:0;right:0;top:-1px;text-align:center;font-size:11px;font-weight:700;color:#fff;text-shadow:0 0 3px #000}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.stats span{text-align:center;background:#0f1729;border-radius:5px;padding:2px 0;line-height:1.15}
+.stats span.cur{outline:2px solid #ffd84d}
+.stats span.dn b{color:var(--warn)}
+.stats em{display:block;font-style:normal;font-size:9px;color:var(--mut)}
+.stats b{font-size:13px}
+.opp{color:var(--mut);font-size:13px}
+#cronaca{max-height:300px;overflow:auto}
+.ev{padding:5px 8px;border-left:4px solid #3a4d7a;margin:0 0 4px;font-size:14px;background:#141c2e;border-radius:0 6px 6px 0}
+.ev time{color:var(--mut);font-size:11px;margin-right:6px}
+.ev.tA{border-left-color:var(--A)}.ev.tB{border-left-color:var(--B)}
+.ev.tratto{background:#1a2740;font-weight:600}
+.ev.fine{background:#24304f;font-weight:700}
+.ev.cotto{color:#ffb4b4}
+.esito{text-align:center}
+.esito h2{font-size:24px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--mut);font-weight:600}
+.pos{color:var(--ok);font-weight:700}.neg{color:var(--bad);font-weight:700}
+.reg{font-size:12px;color:var(--mut)}
+.reg div{padding:1px 0}
+@media(max-width:760px){
+  .two{grid-template-columns:1fr}
+  .tr{grid-template-columns:1fr;gap:6px}
+  .code{font-size:36px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ===== La Tappa: motore di gara (puro, deterministico) ===== */
+const Tappa=(function(){
+'use strict';
+
+/* Parametri tarabili */
+const C={
+  NS:4,                       // sottopassi per tratto
+  POS:[1,0.7,0.6],            // costo energia per posizione in fila (1°,2°,3°)
+  VISTA:60,                   // secondi: entro questa soglia i capitani sono "in vista"
+  FORA_S:12, FORA_EN:25,      // foratura: secondi persi dalla squadra, energia pagata dal corridore
+  RIF:20, CARICA:15,          // rifornimento, tifosi "carica"
+  TIRA_SPD:1.02, TIRA_COST:1.4,
+  SCIA_SPD:0.99, SCIA_COST:0.85,
+  SPINTA:1.06,                // tifosi "primi"/"ultimi"
+  LANCIO:1.05,                // lancio della volata
+  COTTO:0.7,                  // velocita' di un corridore cotto (frazione della base)
+  EN_BASE:65, EN_K:6,         // energia max = EN_BASE + EN_K * stat Energia
+  CK:1.5, CS:0.1,             // costo * (CK - CS * stat del terreno)
+  FRESH_MIN:0.5               // a serbatoio vuoto la stat vale il 50%
+};
+const STAT=['E','P','S','D','Pv','V'];
+const TER={
+  pianura:{nome:'Pianura',sig:'PIA',base:38,k:0.6,cost:1,stat:'P'},
+  salita:{nome:'Salita',sig:'SAL',base:15,k:1.0,cost:3,stat:'S'},
+  discesa:{nome:'Discesa',sig:'DIS',base:45,k:1.0,cost:0.3,stat:'D'},
+  pave:{nome:'Pavé',sig:'PAV',base:28,k:0.8,cost:2,stat:'Pv'},
+  volata:{nome:'Volata',sig:'VOL',base:48,k:1.5,cost:8,stat:'V'}
+};
+const AIUTI={
+  rif:{nome:'Rifornimento',desc:'Ogni corridore della squadra recupera 20 energia all\'inizio del tratto.'},
+  carica:{nome:'Tifosi: carica',desc:'Muro di tifosi: tutta la squadra recupera 15 energia.'},
+  primi:{nome:'Tifosi: spinta ai primi',desc:'+6% di velocità se a inizio tratto il tuo capitano è davanti. Se sei dietro, spinta sprecata.'},
+  ultimi:{nome:'Tifosi: spinta agli ultimi',desc:'+6% di velocità se a inizio tratto il tuo capitano è dietro. Se sei davanti, spinta sprecata.'},
+  fora:{nome:'Foratura',desc:'Colpisce il corridore che l\'avversario mette in testa alla fila su quel tratto: la sua squadra perde 12 secondi e lui paga 25 energia. Non si fora in volata.'}
+};
+
+const CAP=[
+ ['c1','Ettore Valdinievole','Il Camoscio',[7,5,10,7,3,4],'scalatore puro'],
+ ['c2','Gianluca Bevilacqua','Il Metronomo',[8,10,4,5,6,3],'passista'],
+ ['c3','Brando Fumagalli','Lo Scoppio',[5,8,3,6,4,10],'velocista'],
+ ['c4','Osvaldo Pinzarrone','Il Trattore',[7,8,4,3,10,4],'specialista pavé'],
+ ['c5','Tancredi Ghezzi','Kamikaze',[6,5,6,10,4,5],'discesista'],
+ ['c6','Ivano Cresta','Il Parroco',[9,6,8,5,3,5],'scalatore di fondo'],
+ ['c7','Nando Sparapani','Il Pratico',[7,7,5,6,5,6],'completo'],
+ ['c8','Raimondo Boldrini','Il Ragioniere',[7,6,6,6,6,5],'regolare'],
+ ['c9','Silvano Tartufi','Il Cinghiale',[9,6,5,3,9,4],'forza e resistenza'],
+ ['c10','Elio Rondinelli','Lo Scatto',[5,6,8,7,3,7],'attaccante']
+];
+const GRE=[
+ ['g1','Gino Paciotti','Il Mulo',[10,6,3,3,5,1],'tiratore instancabile'],
+ ['g2','Lamberto Quaglia','Il Pendolare',[9,8,3,3,4,1],'passista'],
+ ['g3','Cesare Dondolini','',[8,5,8,3,2,2],'salita'],
+ ['g4','Mirko Sbrana','La Zanzara',[7,4,9,4,2,2],'scalatore leggero'],
+ ['g5','Pietro Gnocchi','Il Locomotore',[9,9,2,2,5,1],'pianura pura'],
+ ['g6','Fausto Bibolotti','',[8,6,2,3,8,1],'pavé'],
+ ['g7','Renzo Calamai','Il Muro',[9,5,3,2,8,1],'pavé e resistenza'],
+ ['g8','Dario Spinelli','La Freccia',[6,6,3,4,2,7],'apripista volata'],
+ ['g9','Ugo Pernice','',[7,5,3,5,2,6],'apripista'],
+ ['g10','Walter Scarpelli','Il Ruzzolone',[7,4,3,10,3,1],'discesista'],
+ ['g11','Ivo Bartolozzi','',[8,5,4,8,2,1],'discesa'],
+ ['g12','Bruno Impastato','Il Fornaio',[9,7,4,3,4,1],'passista di fondo'],
+ ['g13','Leo Tamburini','',[8,7,6,3,3,1],'equilibrato'],
+ ['g14','Aldo Rossellini','Il Notaio',[9,6,5,4,3,1],'regolare'],
+ ['g15','Fulvio Mannucci','',[7,6,7,4,3,1],'salita e pianura'],
+ ['g16','Corrado Pasquini','Il Sagrestano',[8,4,9,4,2,1],'scalatore'],
+ ['g17','Tullio Bargagli','',[8,7,2,3,4,4],'passista veloce'],
+ ['g18','Oreste Ciacci','',[10,5,4,3,5,1],'cavallo da fatica'],
+ ['g19','Nello Cenni','Il Bidone',[6,8,3,3,3,5],'pianura e volata'],
+ ['g20','Primo Fusi','Il Francobollo',[7,5,5,5,5,1],'tuttofare']
+].map(x=>x);
+const RIDER={};
+CAP.concat(GRE).forEach(a=>{RIDER[a[0]]={id:a[0],nome:a[1],nick:a[2],s:a[3],desc:a[4],cap:a[0][0]==='c'};});
+const CAPS=CAP.map(a=>a[0]), GREG=GRE.map(a=>a[0]);
+
+function breve(id){const r=RIDER[id];return r.nick||r.nome.split(' ').slice(-1)[0];}
+function breveL(id){return breve(id).replace(/^(Il|Lo|La) /,m=>m.toLowerCase());}
+
+/* Numeri casuali con seme */
+function rng(seed){let a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+/* Percorso da seme */
+function corsa(seed){
+  const r=rng(seed);
+  const ri=(a,b)=>a+Math.floor(r()*(b-a+1));
+  for(let tent=0;tent<2000;tent++){
+    const tipi=['pianura'];
+    for(let i=1;i<9;i++){
+      const prev=tipi[i-1];
+      const pool=['pianura','pianura','salita','salita','salita','pave'];
+      if(prev==='salita')pool.push('discesa','discesa');
+      tipi.push(pool[Math.floor(r()*pool.length)]);
+    }
+    tipi.push('volata');
+    const n=t=>tipi.filter(x=>x===t).length;
+    if(n('salita')>=2&&n('salita')<=4&&n('pave')>=1&&n('pave')<=2&&n('pianura')<=5){
+      return tipi.map(t=>{
+        if(t==='pianura')return{tipo:t,km:ri(10,14)};
+        if(t==='salita')return{tipo:t,km:ri(5,8),pend:ri(5,9)};
+        if(t==='discesa')return{tipo:t,km:ri(6,9),pend:ri(5,9)};
+        if(t==='pave')return{tipo:t,km:ri(3,5)};
+        return{tipo:t,km:1};
+      });
+    }
+  }
+  return ['pianura','salita','pianura','discesa','salita','pave','pianura','salita','pianura','volata'].map(t=>({tipo:t,km:t==='volata'?1:8,pend:6}));
+}
+
+/* Validazione piano */
+function valida(p,tratti){
+  const e=[];
+  if(!p||typeof p!=='object')return['piano mancante'];
+  if(!RIDER[p.cap]||!RIDER[p.cap].cap)e.push('capitano non valido');
+  if(!Array.isArray(p.greg)||p.greg.length!==2||p.greg.some(g=>!RIDER[g]||RIDER[g].cap)||p.greg[0]===p.greg[1])e.push('gregari non validi');
+  if(e.length)return e;
+  const team=[p.cap,...p.greg];
+  const n=tratti.length;
+  if(!Array.isArray(p.ordine)||p.ordine.length!==n)e.push('ordine incompleto');
+  else p.ordine.forEach((o,i)=>{if(!Array.isArray(o)||o.length!==3||team.some(x=>o.indexOf(x)<0))e.push('ordine non valido al tratto '+(i+1));});
+  if(!Array.isArray(p.stance)||p.stance.length!==n||p.stance.some(x=>x!=='scia'&&x!=='tira'))e.push('scia/tira non validi');
+  if(!Array.isArray(p.aiuti)||p.aiuti.length>3)e.push('massimo 3 aiuti');
+  else{
+    const used={};
+    p.aiuti.forEach(a=>{
+      if(!a||!AIUTI[a.tipo]||!(a.t>=0&&a.t<n))e.push('aiuto non valido');
+      else{
+        if(used[a.t])e.push('due aiuti nello stesso tratto');used[a.t]=1;
+        if(a.tipo==='fora'&&tratti[a.t].tipo==='volata')e.push('non si fora in volata');
+      }
+    });
+  }
+  return e;
+}
+
+const eff=(r,si)=>r.d.s[si]*(C.FRESH_MIN+(1-C.FRESH_MIN)*r.en/r.emax);
+const sec=x=>{x=Math.abs(x);return x<10?x.toFixed(1).replace('.',','):String(Math.round(x));};
+const up1=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+/* Simulazione completa */
+function simula(tratti,planA,planB,seed){
+  const R=rng(((seed|0)^0x5bd1e995)>>>0);
+  const V=a=>a[Math.floor(R()*a.length)];
+  const K=['A','B'];
+  const plans={A:planA,B:planB};
+  const TEAM={A:'i rossi',B:'gli azzurri'};
+  const sq={A:{riders:{},cap:planA.cap},B:{riders:{},cap:planB.cap}};
+  K.forEach(k=>{
+    [plans[k].cap].concat(plans[k].greg).forEach(id=>{
+      const d=RIDER[id],emax=C.EN_BASE+C.EN_K*d.s[0];
+      sq[k].riders[id]={id,d,emax,en:emax,t:0,km:0,pts:[{t:0,km:0,en:emax}]};
+    });
+  });
+  const tc=k=>sq[k].riders[sq[k].cap].t;
+  const rs=(k,s)=>plans[k].ordine[s].map(id=>sq[k].riders[id]);
+  const eventi=[];
+  const ev=(t,txt,kind,team)=>eventi.push({t:t,txt:txt,kind:kind||'info',team:team||null,i:eventi.length});
+  const capNm=k=>breve(sq[k].cap);
+  const totKm=tratti.reduce((a,b)=>a+b.km,0);
+  const fill=(s,o)=>s.replace(/\{(\w+)\}/g,(m,x)=>o[x]);
+
+  ev(0,V([
+    'Buongiorno a tutti e benvenuti alla Cronoscalata del Mutuo a Tasso Zero: '+tratti.length+' tratti, '+totKm+' km e un solo contratto di sponsorizzazione in palio!',
+    'Si parte! '+totKm+' chilometri, '+tratti.length+' tratti e due direttori sportivi che hanno studiato tutta la notte: chi firma il contratto?'
+  ]),'start');
+
+  const INTRO={
+    pianura:['Si entra in pianura: {km} km di rettilineo dove contano più la testa che le gambe.','Tratto di pianura, {km} km: strada larga, vento di traverso e ammiraglie che si guardano di sbieco.','{km} km di pianura: qui si decide chi tira e chi fa finta di niente.'],
+    salita:['Ecco la salita: {km} km al {pend}% di pendenza media. Qui si separano i campioni dagli appassionati.','Si impenna la strada! {km} km al {pend}%: tornanti, fiato corto e tifosi che spingono (a parole).','Rampa di {km} km al {pend}%: chi ha il serbatoio vuoto, qui lo scopre.'],
+    discesa:['Discesa di {km} km al {pend}%: i discesisti si buttano, gli altri guardano il vuoto e pregano.','Si scende! {km} km al {pend}%: curve a gomito e freni che fischiano.','In picchiata per {km} km: si recupera fiato, ma guai a sbagliare traiettoria.'],
+    pave:['Settore di pavé, {km} km di sassi: la corsa si fa a spallate e a vibrazioni.','Si entra sul pavé: {km} km di ciottoli che frullano anche le certezze.','Pavé per {km} km: polvere, borracce che saltano e qualche santo invocato.'],
+    volata:['Ultimo chilometro! Il traguardo è lì, la volata decide la tappa!','Flamme rouge! Ultimo chilometro: adesso conta solo la progressione.','Si apre la volata: chi ha ancora benzina, la usi tutta!']
+  };
+
+  let prevLead={A:null,B:null},prevSign=0,km0=0;
+  const kmStart=[],segs=[];
+
+  for(let s=0;s<tratti.length;s++){
+    const tr=tratti[s],TE=TER[tr.tipo],si=STAT.indexOf(TE.stat);
+    kmStart.push(km0);
+    const arr={A:tc('A'),B:tc('B')};
+    const t0=Math.min(arr.A,arr.B);
+    ev(t0,'Tratto '+(s+1)+' di '+tratti.length+'. '+fill(V(INTRO[tr.tipo]),{km:tr.km,pend:tr.pend||0}),'tratto');
+    const aid={A:plans.A.aiuti.find(a=>a.t===s)||null,B:plans.B.aiuti.find(a=>a.t===s)||null};
+
+    /* aiuti di energia */
+    K.forEach(k=>{
+      const a=aid[k];if(!a)return;
+      if(a.tipo==='rif'||a.tipo==='carica'){
+        const q=a.tipo==='rif'?C.RIF:C.CARICA;
+        for(const id in sq[k].riders){const r=sq[k].riders[id];r.en=Math.min(r.emax,r.en+q);r.pts.push({t:r.t,km:r.km,en:r.en});}
+        ev(arr[k],a.tipo==='rif'
+          ?V([up1(TEAM[k])+': rifornimento al volo! Borracce, panini e gel, i tre ripartono ricaricati.','Ammiraglia '+(k==='A'?'rossa':'azzurra')+' in azione: rifornimento perfetto, il serbatoio si riempie.'])
+          :V(['Muro di tifosi per '+TEAM[k]+': urla, bandiere e una bella carica di energia.','Che tifo per '+TEAM[k]+'! Il pubblico spinge e le gambe ringraziano.']),'aiuto',k);
+      }
+    });
+    /* forature */
+    const punt={A:null,B:null};
+    K.forEach(k=>{
+      const a=aid[k];if(!a||a.tipo!=='fora')return;
+      const o=k==='A'?'B':'A',lst=rs(o,s);
+      const v=lst.find(r=>r.en>0)||lst[0];
+      lst.forEach(r=>{if(r.en>0||r===v)r.t+=C.FORA_S;});
+      v.en=Math.max(0,v.en-C.FORA_EN);
+      lst.forEach(r=>r.pts.push({t:r.t,km:r.km,en:r.en}));
+      punt[o]=v.id;
+      ev(arr[o],V([
+        'Foratura! '+breve(v.id)+' ('+TEAM[o]+') è a terra: ruota da cambiare e squadra che aspetta.',
+        'Chiodi sul percorso! Fora '+breve(v.id)+' e '+TEAM[o]+' perde secondi preziosi.',
+        'Brutto contrattempo: foratura per '+breve(v.id)+'. Qualcuno aveva preparato una sorpresina...'
+      ]),'foratura',o);
+    });
+
+    /* distacco a inizio tratto e modificatori */
+    const gap0=tc('B')-tc('A');           // >0: A davanti
+    const vista=Math.abs(gap0)<C.VISTA;
+    const st={A:plans.A.stance[s],B:plans.B.stance[s]};
+    const mod={A:{spd:1,cost:1},B:{spd:1,cost:1}};
+    K.forEach(k=>{
+      const o=k==='A'?'B':'A';
+      if(vista){
+        if(st[k]==='tira'&&st[o]==='tira'){mod[k].cost=C.TIRA_COST;}
+        else if(st[k]==='tira'){mod[k].spd=C.TIRA_SPD;mod[k].cost=C.TIRA_COST;}
+        else if(st[o]==='tira'){mod[k].spd=C.SCIA_SPD;mod[k].cost=C.SCIA_COST;}
+      }else if(st[k]==='tira'){mod[k].spd=C.TIRA_SPD;mod[k].cost=C.TIRA_COST;}
+    });
+    K.forEach(k=>{
+      const a=aid[k];if(!a||(a.tipo!=='primi'&&a.tipo!=='ultimi'))return;
+      const avanti=k==='A'?gap0>0:gap0<0, dietro=k==='A'?gap0<0:gap0>0;
+      const ok=a.tipo==='primi'?avanti:dietro;
+      if(ok)mod[k].spd*=C.SPINTA;
+      ev(arr[k],ok?V(['I tifosi di '+TEAM[k]+' spingono nel momento giusto: spinta che si sente!','Boato per '+TEAM[k]+': il pubblico dà una mano e la ruota gira più veloce.'])
+                  :V(['I tifosi di '+TEAM[k]+' spingevano '+(a.tipo==='primi'?'la testa della corsa':'chi insegue')+', ma non è il suo caso: spinta sprecata.','Tifo a vuoto per '+TEAM[k]+': entusiasmo sì, effetto zero.']),'aiuto',k);
+    });
+    /* commenti su scia/tira */
+    if(vista){
+      if(st.A==='tira'&&st.B==='tira')ev(t0+0.1,V(['Fronte a fronte: nessuno vuole mollare, i due gruppi si danno battaglia a ritmo da cronometro.','Si tira da entrambe le parti: un duello a viso aperto, e le gambe presentano il conto.']),'tattica');
+      else if(st.A==='tira'||st.B==='tira'){
+        const p=st.A==='tira'?'A':'B',q=p==='A'?'B':'A';
+        ev(t0+0.1,up1(TEAM[p])+' fa il forcing in testa, '+TEAM[q]+' si mette a ruota e gioca di rimessa.','tattica',p);
+      }else if(R()<0.5)ev(t0+0.1,V(['Nessuno vuole tirare: gruppo compatto, i due team si studiano come pugili al primo round.','Regna la prudenza: tutti a ruota, tutti a guardarsi. Chi sbatte per primo le palpebre?']),'tattica');
+    }else{
+      K.forEach(k=>{if(st[k]==='tira')ev(arr[k]+0.1,up1(TEAM[k])+' spinge a tutta nonostante la corsa sia ormai divisa: ritmo alto per tenere il vantaggio o per rientrare.','tattica',k);});
+    }
+    /* chi comanda la fila */
+    const lead0={};
+    K.forEach(k=>{
+      const l=rs(k,s).find(r=>r.en>0)||null;lead0[k]=l?l.id:null;
+      if(l&&l.id!==prevLead[k]&&tr.tipo!=='volata'){
+        const ord=rs(k,s).map(r=>r.id).filter(x=>x!==l.id);
+        ev(arr[k]+0.2,'In testa per '+TEAM[k]+': '+breve(l.id)+', con '+breveL(ord[0])+' e '+breveL(ord[1])+' a ruota.','fila',k);
+      }
+      prevLead[k]=l?l.id:prevLead[k];
+    });
+    if(tr.tipo==='volata'){
+      K.forEach(k=>{
+        const l=lead0[k];
+        if(l&&l!==sq[k].cap&&RIDER[l].s[5]>=6)ev(arr[k]+0.3,'Lancio perfetto di '+breve(l)+' per '+breveL(sq[k].cap)+' ('+TEAM[k]+'): la volata parte con una fionda!','fila',k);
+      });
+    }
+
+    /* sottopassi */
+    const dkm=tr.km/C.NS;
+    for(let i=0;i<C.NS;i++){
+      const kmEnd=km0+dkm*(i+1);
+      K.forEach(k=>{
+        const lst=rs(k,s),live=lst.filter(r=>r.en>0),cp=sq[k].cap,v={};
+        if(tr.tipo==='volata'){
+          const l=live[0];
+          live.forEach(r=>{
+            let x=(TE.base+TE.k*eff(r,si))*mod[k].spd;
+            if(r.id===cp&&l&&l.id!==cp&&l.d.s[5]>=6)x*=C.LANCIO;
+            v[r.id]=x;
+          });
+        }else if(live.length){
+          const x=(TE.base+TE.k*eff(live[0],si))*mod[k].spd;
+          live.forEach(r=>{v[r.id]=x;});
+        }
+        const was=new Set(live.map(r=>r.id));
+        lst.forEach(r=>{
+          const vel=was.has(r.id)?v[r.id]:TE.base*C.COTTO;
+          r.t+=dkm/vel*3600;r.km=kmEnd;
+          if(was.has(r.id)){
+            const idx=live.indexOf(r);
+            r.en=Math.max(0,r.en-TE.cost*dkm*C.POS[Math.min(idx,2)]*mod[k].cost*(C.CK-C.CS*r.d.s[si]));
+          }
+          r.pts.push({t:r.t,km:kmEnd,en:r.en});
+        });
+        live.forEach(r=>{
+          if(r.en<=0){
+            const isCap=r.id===cp;
+            ev(r.t,isCap
+              ?V(['Crisi nera per '+breve(r.id)+', capitano '+(k==='A'?'dei rossi':'degli azzurri')+': ha finito la benzina e si stacca!','Il capitano '+breveL(r.id)+' è cotto! Pedala nel vuoto, la tappa si complica.'])
+              :V([breve(r.id)+' ('+TEAM[k]+') è cotto: ha dato tutto e si stacca dal gruppo.','Si spegne la luce per '+breveL(r.id)+': gregario in apnea, resta indietro.','Finito il carburante per '+breveL(r.id)+' ('+TEAM[k]+'): naviga a vista in fondo al gruppetto.']),'cotto',k);
+          }
+        });
+      });
+      if(i===1&&R()<0.6){
+        const g=sq.B.riders[sq.B.cap].t-sq.A.riders[sq.A.cap].t;
+        if(Math.abs(g)>=1){
+          const k=g>0?'A':'B';
+          ev(Math.min(tc('A'),tc('B')),V([
+            'A metà tratto '+breve(sq[k].cap)+' ('+TEAM[k]+') è davanti di '+sec(g)+' secondi.',
+            'Situazione: '+TEAM[k]+' con '+breveL(sq[k].cap)+' avanti di '+sec(g)+' secondi.',
+            'L\'ammiraglia '+(k==='A'?'rossa':'azzurra')+' segnala '+sec(g)+' secondi di vantaggio sul rivale.'
+          ]),'situazione');
+        }
+      }
+    }
+    km0+=tr.km;
+
+    /* fine tratto */
+    const gap1=tc('B')-tc('A');
+    const tEnd=Math.max(tc('A'),tc('B'));
+    const vista1=Math.abs(gap1)<C.VISTA;
+    if(s<tratti.length-1){
+      if(vista&&!vista1)ev(tEnd,'Il distacco supera il minuto: i due capitani non si vedono più. Ognuno corre la propria gara.','distacco');
+      else if(!vista&&vista1)ev(tEnd,'Rientro in vista! Si può tornare a giocare di scia.','distacco');
+      const sign=Math.abs(gap1)<1?0:(gap1>0?1:-1);
+      if(prevSign!==0&&sign!==0&&sign!==prevSign){
+        const k=sign>0?'A':'B';
+        ev(tEnd,'Sorpasso! '+breve(sq[k].cap)+' ('+TEAM[k]+') passa in testa alla corsa.','sorpasso',k);
+      }
+      if(sign!==0)prevSign=sign;
+      if(Math.abs(gap1)>=1){
+        const k=gap1>0?'A':'B';
+        ev(tEnd,'Fine tratto: '+breve(sq[k].cap)+' ('+TEAM[k]+') davanti di '+sec(gap1)+' secondi.','situazione');
+      }else ev(tEnd,'Fine tratto: i due capitani sono praticamente appaiati.','situazione');
+    }
+    segs.push({s,tipo:tr.tipo,km:tr.km,gap0,gap1,vista,st,lead:lead0,aid:{A:aid.A?aid.A.tipo:null,B:aid.B?aid.B.tipo:null},punt,
+      en:{A:sq.A.riders[sq.A.cap].en/sq.A.riders[sq.A.cap].emax,B:sq.B.riders[sq.B.cap].en/sq.B.riders[sq.B.cap].emax}});
+  }
+
+  /* esito */
+  const cA=sq.A.riders[sq.A.cap],cB=sq.B.riders[sq.B.cap];
+  let win;
+  if(Math.abs(cA.t-cB.t)<1e-6)win=cA.en>=cB.en?'A':'B';else win=cA.t<cB.t?'A':'B';
+  const lose=win==='A'?'B':'A';
+  const dist=Math.abs(cA.t-cB.t);
+  ev(Math.min(cA.t,cB.t),'TRAGUARDO! Vince '+breve(sq[win].cap)+' ('+TEAM[win]+')! '+V(['Braccia al cielo e contratto in tasca!','Una tappa da consegnare agli annali della banca.','Firma sul mutuo a tasso zero e brindisi in ammiraglia!']),'fine',win);
+  ev(Math.max(cA.t,cB.t),breve(sq[lose].cap)+' ('+TEAM[lose]+') taglia il traguardo con '+(dist<1?'meno di un secondo':sec(dist)+' secondi')+' di ritardo.','fine',lose);
+  eventi.sort((a,b)=>a.t-b.t||a.i-b.i);
+
+  const squadre={};
+  K.forEach(k=>{
+    squadre[k]={cap:sq[k].cap,riders:Object.keys(sq[k].riders).map(id=>{const r=sq[k].riders[id];return{id,emax:r.emax,pts:r.pts,t:r.t,en:r.en};})};
+  });
+  return{km:totKm,kmStart,tratti,squadre,eventi,segs,Tend:Math.max(cA.t,cB.t),res:{vincitore:win,tA:cA.t,tB:cB.t,distacco:dist,enA:cA.en,enB:cB.en}};
+}
+
+/* Utilita' per l'animazione */
+function posAt(pts,T){
+  let lo=0,hi=pts.length-1;
+  if(T>=pts[hi].t)return{km:pts[hi].km,en:pts[hi].en};
+  if(T<=pts[0].t)return{km:pts[0].km,en:pts[0].en};
+  while(lo<hi-1){const m=(lo+hi)>>1;if(pts[m].t<=T)lo=m;else hi=m;}
+  /* tra piu' punti con stesso t prende l'ultimo */
+  const a=pts[lo],b=pts[hi];
+  if(b.t<=a.t)return{km:b.km,en:b.en};
+  const f=(T-a.t)/(b.t-a.t);
+  return{km:a.km+(b.km-a.km)*f,en:a.en+(b.en-a.en)*f};
+}
+function tAtKm(pts,km){
+  if(km<=pts[0].km)return pts[0].t;
+  const L=pts.length-1;
+  if(km>=pts[L].km)return pts[L].t;
+  let lo=0,hi=L;
+  while(lo<hi-1){const m=(lo+hi)>>1;if(pts[m].km<km)lo=m;else hi=m;}
+  const a=pts[lo],b=pts[hi];
+  if(b.km<=a.km)return b.t;
+  return a.t+(b.t-a.t)*(km-a.km)/(b.km-a.km);
+}
+function profilo(tratti){
+  let alt=0,km=0;const p=[{km:0,alt:0}];
+  tratti.forEach(t=>{
+    km+=t.km;
+    if(t.tipo==='salita')alt+=t.km*10*t.pend;
+    else if(t.tipo==='discesa')alt=Math.max(0,alt-t.km*10*t.pend);
+    p.push({km,alt});
+  });
+  return p;
+}
+
+return{C,STAT,TER,AIUTI,CAP,GRE,RIDER,CAPS,GREG,breve,breveL,rng,corsa,valida,simula,eff,posAt,tAtKm,profilo};
+})();
+
+
+</script>
+<script>
+(function(){
+'use strict';
+const SB_URL='https://fxnfaotahrlmmrundkib.supabase.co';
+const SB_KEY='sb_publishable_P-5jMCC2t_GpKLhwvlosiQ_tIUmUPpW';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const TT=Tappa;
+const COL={A:'#ff4d6d',B:'#38bdf8'};
+const TEAMN={A:'Rossi',B:'Azzurri'};
+const SL=['ENE','PIA','SAL','DIS','PAV','VOL'];
+const $=s=>document.querySelector(s);
+const app=$('#app');
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function LS(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}return null;}
+const fg=g=>{g=Math.abs(g);return g<10?g.toFixed(1).replace('.',','):String(Math.round(g));};
+const ora=t=>Math.floor(t/3600)+'h'+String(Math.floor(t%3600/60)).padStart(2,'0');
+const nomeR=id=>TT.RIDER[id].nome+(TT.RIDER[id].nick?' «'+TT.RIDER[id].nick+'»':'');
+
+let codice=null,ruolo=null,riga=null,view=null,chan=null,poll=null;
+let bozza=null,selChip=null,sim=null,anim=null,G=null,evShown=0,Tcur=0,mult=1;
+
+/* ---------- accesso ai dati ---------- */
+const reg=(k,t)=>({t:new Date().toISOString(),k:k,testo:t});
+function nuovoCodice(){const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';for(let i=0;i<4;i++)c+=a[Math.floor(Math.random()*a.length)];return c;}
+const nuovoSeed=()=>Math.floor(Math.random()*2147483000)+1;
+async function inserisci(stato){
+  for(let i=0;i<8;i++){
+    const c=nuovoCodice();
+    const r=await sb.from('tappa').insert({codice:c,stato:stato,versione:0}).select().single();
+    if(!r.error)return r.data;
+    if(r.error.code!=='23505')throw r.error;
+  }
+  throw new Error('Nessun codice libero, riprova');
+}
+async function mutate(fn,c){
+  c=c||codice;
+  for(let i=0;i<6;i++){
+    const r=await sb.from('tappa').select('*').eq('codice',c).single();
+    if(r.error)throw r.error;
+    const st=JSON.parse(JSON.stringify(r.data.stato));
+    if(fn(st)===false)return false;
+    st.registro=(st.registro||[]).slice(-40);
+    const u=await sb.from('tappa').update({stato:st,versione:r.data.versione+1,aggiornato_il:new Date().toISOString()}).eq('codice',c).eq('versione',r.data.versione).select();
+    if(u.error)throw u.error;
+    if(u.data&&u.data.length){if(c===codice){riga=u.data[0];}return true;}
+  }
+  throw new Error('Troppi tentativi, riprova');
+}
+function statoIniziale(nome,seed){
+  return{seed:seed,tratti:TT.corsa(seed),giocatori:{A:{nome:nome},B:null},piani:{A:null,B:null},registro:[reg('A',nome+' ha creato la partita')],rivincita:null,prec:null};
+}
+function sottoscrivi(){
+  if(chan){try{sb.removeChannel(chan);}catch(e){}chan=null;}
+  try{
+    chan=sb.channel('tappa-'+codice).on('postgres_changes',{event:'UPDATE',schema:'public',table:'tappa',filter:'codice=eq.'+codice},function(p){
+      if(p.new&&riga&&p.new.versione>riga.versione){riga=p.new;render(false);}
+    }).subscribe();
+  }catch(e){}
+  clearInterval(poll);
+  poll=setInterval(async function(){
+    if(document.hidden||!codice)return;
+    try{
+      const r=await sb.from('tappa').select('*').eq('codice',codice).maybeSingle();
+      if(r.data&&riga&&r.data.versione>riga.versione){riga=r.data;render(false);}
+    }catch(e){}
+  },4000);
+}
+function apri(c,r,data){
+  codice=c;ruolo=r;riga=data;view=null;bozza=null;selChip=null;
+  LS('tappa:'+c,r);LS('tappa:ultima',c);
+  sottoscrivi();render(true);
+}
+function esci(){
+  stopAnim();
+  if(chan){try{sb.removeChannel(chan);}catch(e){}chan=null;}
+  clearInterval(poll);
+  LS('tappa:ultima',null);
+  codice=null;ruolo=null;riga=null;view=null;
+  vistaLobby();
+}
+
+/* ---------- lobby ---------- */
+const STORIA='<p>Siete i due direttori sportivi della <b>Banca Cooperativa del Pedale e dell\'Anticipo Mutui</b>. La banca ha una sola sponsorizzazione ciclistica e un Direttore Generale che ha perso il badge, il telefono e la pazienza: per non scegliere ha indetto la <b>Cronoscalata del Mutuo a Tasso Zero</b>, tappa unica in 10 tratti.</p><p>Chi porta per primo il proprio <b>capitano</b> al traguardo firma il contratto. L\'altro torna a vendere polizze vita ai tifosi del Gran Premio della Montagna.</p><p>Non si pedala davvero: alla vigilia scegliete capitano e due gregari, decidete in che ordine fare la fila e dove nascondere gli <b>aiuti</b> (rifornimenti, tifosi, chiodi sulla strada). Poi la gara parte da sola, con la telecronaca in diretta.</p>';
+function vistaLobby(){
+  view='lobby';
+  app.innerHTML='<div class="wrap"><h1>🚴 La Tappa</h1><p class="sub">Cronoscalata del Mutuo a Tasso Zero</p>'+
+  '<div class="card"><label>Il tuo nome<input id="nome" maxlength="20" autocomplete="off" value="'+esc(LS('tappa:nome')||'')+'"></label>'+
+  '<div class="row"><button class="big" id="bCrea">Crea una partita</button></div>'+
+  '<div class="row"><input id="cod" maxlength="4" placeholder="CODICE" autocomplete="off" style="text-transform:uppercase"><button id="bEntra">Entra</button></div>'+
+  '<div class="err" id="err"></div></div>'+
+  '<div class="card story"><h3>La storia</h3>'+STORIA+'</div></div>';
+  $('#bCrea').onclick=creaPartita;
+  $('#bEntra').onclick=entraPartita;
+}
+function nomeInput(){
+  const n=($('#nome').value||'').trim();
+  if(!n){$('#err').textContent='Scrivi prima il tuo nome.';return null;}
+  LS('tappa:nome',n);return n;
+}
+async function creaPartita(){
+  const n=nomeInput();if(!n)return;
+  $('#err').textContent='';$('#bCrea').disabled=true;
+  try{const row=await inserisci(statoIniziale(n,nuovoSeed()));apri(row.codice,'A',row);}
+  catch(e){$('#err').textContent='Errore: '+(e.message||e);$('#bCrea').disabled=false;}
+}
+async function entraPartita(){
+  const n=nomeInput();if(!n)return;
+  const c=($('#cod').value||'').toUpperCase().trim();
+  if(c.length!==4){$('#err').textContent='Il codice ha 4 caratteri.';return;}
+  $('#err').textContent='';
+  try{
+    const r=await sb.from('tappa').select('*').eq('codice',c).maybeSingle();
+    if(r.error)throw r.error;
+    if(!r.data){$('#err').textContent='Partita non trovata.';return;}
+    const saved=LS('tappa:'+c);
+    if(saved==='A'||saved==='B'){apri(c,saved,r.data);return;}
+    const st=r.data.stato;
+    if(!st.giocatori.B){
+      const ok=await mutate(function(s){if(s.giocatori.B)return false;s.giocatori.B={nome:n};s.registro.push(reg('B',n+' è entrato in partita'));},c);
+      if(ok){const r2=await sb.from('tappa').select('*').eq('codice',c).single();apri(c,'B',r2.data);return;}
+      const r3=await sb.from('tappa').select('*').eq('codice',c).single();
+      sceltaRuolo(c,r3.data);return;
+    }
+    sceltaRuolo(c,r.data);
+  }catch(e){$('#err').textContent='Errore: '+(e.message||e);}
+}
+function sceltaRuolo(c,data){
+  const g=data.stato.giocatori;
+  $('#err').innerHTML='Partita già piena. Chi sei? <button id="rA">'+esc(g.A.nome)+' (rossi)</button> <button id="rB">'+esc(g.B.nome)+' (azzurri)</button>';
+  $('#rA').onclick=function(){apri(c,'A',data);};
+  $('#rB').onclick=function(){apri(c,'B',data);};
+}
+
+/* ---------- smistamento viste ---------- */
+function chiave(){
+  const s=riga.stato;
+  if(!s.giocatori.B)return'attesa';
+  return(s.piani.A&&s.piani.B)?'gara':'piano';
+}
+function render(force){
+  const k=chiave();
+  if(k!==view||force){
+    stopAnim();view=k;
+    if(k==='attesa')vistaAttesa();else if(k==='piano')vistaPiano();else vistaGara();
+  }else{
+    if(k==='piano')drawStato();else if(k==='gara')drawRivincita();
+  }
+}
+function intestazione(){
+  const g=riga.stato.giocatori;
+  return'<div class="hdr"><div><b>🚴 La Tappa</b> · codice <b>'+esc(codice)+'</b></div><div>'+
+    '<span class="pill A">'+esc(g.A.nome)+'</span> '+(g.B?'<span class="pill B">'+esc(g.B.nome)+'</span>':'')+
+    ' <button id="bEsci" style="padding:4px 10px;font-size:12px">Esci</button></div></div>';
+}
+function legaEsci(){const b=$('#bEsci');if(b)b.onclick=function(){if(confirm('Uscire dalla partita? Potrai rientrare con il codice.'))esci();};}
+
+/* ---------- attesa ---------- */
+function vistaAttesa(){
+  app.innerHTML='<div class="wrap">'+intestazione()+
+  '<div class="card"><h2>Aspettando il collega</h2><div class="code">'+esc(codice)+'</div>'+
+  '<p class="mut" style="text-align:center">Passa questo codice a chi vuoi sfidare: lo inserisce in "Entra" e si parte.</p>'+
+  '<div class="row" style="justify-content:center"><button id="bCopia">Copia il codice</button></div></div>'+
+  '<div class="card story"><h3>La storia</h3>'+STORIA+'</div></div>';
+  legaEsci();
+  $('#bCopia').onclick=function(){try{navigator.clipboard.writeText(codice);$('#bCopia').textContent='Copiato!';}catch(e){}};
+}
+
+/* ---------- geometria pista ---------- */
+function geometria(tratti){
+  const x0=24,x1=976,base=170,top=58;
+  const tot=tratti.reduce((a,t)=>a+t.km,0);
+  const prof=TT.profilo(tratti);
+  const maxA=Math.max(1,Math.max.apply(null,prof.map(p=>p.alt)));
+  const X=km=>x0+(x1-x0)*km/tot;
+  const alt=km=>{
+    for(let i=1;i<prof.length;i++){
+      if(km<=prof[i].km+1e-9){const a=prof[i-1],b=prof[i];const f=b.km>a.km?(km-a.km)/(b.km-a.km):0;return a.alt+(b.alt-a.alt)*Math.max(0,Math.min(1,f));}
+    }
+    return prof[prof.length-1].alt;
+  };
+  const Y=km=>base-10-(alt(km)/maxA)*(base-10-top);
+  const ks=[];let k0=0;tratti.forEach(t=>{ks.push(k0);k0+=t.km;});
+  return{x0,x1,base,top,tot,X,Y,ks};
+}
+function svgPista(tratti,g){
+  const col={pianura:'#7bd88f',salita:'#ff9f4a',discesa:'#5aa9ff',pave:'#c9a36b',volata:'#ffd84d'};
+  let s='';
+  tratti.forEach(function(t,i){
+    const a=g.ks[i],b=a+t.km,xa=g.X(a),xb=g.X(b);
+    s+='<rect x="'+xa+'" y="8" width="'+(xb-xa)+'" height="'+(g.base-4)+'" fill="'+col[t.tipo]+'" opacity="'+(i%2?0.07:0.14)+'"/>';
+    const n=Math.max(2,Math.round((xb-xa)/9));let d='';
+    for(let j=0;j<=n;j++){
+      const km=a+t.km*j/n;let y=g.Y(km);
+      if(t.tipo==='pave'&&j>0&&j<n)y+=(j%2?2.5:-2.5);
+      d+=(j?' L':'M')+g.X(km).toFixed(1)+' '+y.toFixed(1);
+    }
+    s+='<path d="'+d+' L'+xb+' '+(g.base+4)+' L'+xa+' '+(g.base+4)+' Z" fill="'+col[t.tipo]+'" opacity=".28"/>';
+    s+='<path d="'+d+'" fill="none" stroke="'+col[t.tipo]+'" stroke-width="2.4" stroke-linejoin="round"/>';
+    s+='<text x="'+((xa+xb)/2)+'" y="'+(g.base+22)+'" text-anchor="middle" fill="#cdd6ea" font-size="13" font-weight="700">'+TT.TER[t.tipo].sig+'</text>';
+    s+='<text x="'+((xa+xb)/2)+'" y="'+(g.base+37)+'" text-anchor="middle" fill="#8b97b3" font-size="11">'+t.km+' km'+(t.pend?' · '+t.pend+'%':'')+'</text>';
+  });
+  s+='<line x1="'+g.x1+'" x2="'+g.x1+'" y1="8" y2="'+(g.base+4)+'" stroke="#fff" stroke-dasharray="4 3"/>';
+  s+='<text x="'+(g.x1-5)+'" y="22" text-anchor="end" fill="#fff" font-size="12">TRAGUARDO</text>';
+  return s;
+}
+
+/* ---------- piano ---------- */
+const bozzaKey=()=>'tappa:'+codice+':bozza';
+function caricaBozza(){
+  try{const b=JSON.parse(LS(bozzaKey()));if(b&&b.stance)return b;}catch(e){}
+  return{cap:null,greg:[],ordine:[],stance:[],aiuti:[]};
+}
+function salvaBozza(){LS(bozzaKey(),JSON.stringify(bozza));}
+function normalizza(){
+  const n=riga.stato.tratti.length;
+  if(!bozza.stance||bozza.stance.length!==n)bozza.stance=Array(n).fill('scia');
+  if(!(bozza.cap&&bozza.greg.length===2)){bozza.ordine=[];return;}
+  const team=[bozza.cap].concat(bozza.greg);
+  bozza.ordine=Array.from({length:n},function(_,i){
+    const o=bozza.ordine&&bozza.ordine[i];
+    return(o&&o.length===3&&team.every(x=>o.indexOf(x)>=0))?o:[bozza.greg[0],bozza.greg[1],bozza.cap];
+  });
+}
+function statsHtml(id){
+  return'<div class="sts">'+TT.RIDER[id].s.map((v,i)=>'<span style="--v:'+v+'"><em>'+SL[i]+'</em><b>'+v+'</b></span>').join('')+'</div>';
+}
+function cardRider(id,sel){
+  const r=TT.RIDER[id];
+  return'<div class="rc'+(sel?' sel':'')+'" data-id="'+id+'"><b>'+esc(r.nome)+'</b><i>'+esc(r.nick)+'</i>'+statsHtml(id)+'<small>'+esc(r.desc)+'</small></div>';
+}
+function vistaPiano(){
+  bozza=caricaBozza();normalizza();salvaBozza();selChip=null;
+  const st=riga.stato;
+  const g=geometria(st.tratti);
+  const lista=Object.keys(TT.AIUTI).map(k=>'<li><b>'+esc(TT.AIUTI[k].nome)+'</b>: '+esc(TT.AIUTI[k].desc)+'</li>').join('');
+  app.innerHTML='<div class="wrap">'+intestazione()+
+  '<div class="card pistacard"><h2>Il percorso</h2><svg viewBox="0 0 1000 215" id="pistaPiano">'+svgPista(st.tratti,g)+'</svg></div>'+
+  '<div class="card"><details><summary>Come funziona (leggi una volta)</summary>'+
+  '<p><b>Obiettivo:</b> vince chi porta per primo il capitano al traguardo. I gregari servono a lui: sono il suo carburante.</p>'+
+  '<p><b>Energia:</b> ogni corridore ha un serbatoio (più alto con la stat ENE). Più si svuota, più le sue statistiche calano, fino a metà del valore. A zero è <b>cotto</b>: si stacca e va piano da solo.</p>'+
+  '<p><b>Ordine in fila:</b> la squadra va alla velocità di chi è in testa, usando la sua statistica per quel terreno (PIA, SAL, DIS, PAV, VOL). Chi è in testa spende l\'energia piena, il secondo il 70%, il terzo il 60%. I corridori forti su un terreno ci spendono meno.</p>'+
+  '<p><b>Scia o tira</b> (conta se i due capitani sono a meno di 60 secondi): se uno tira e l\'altro sta a ruota, chi tira guadagna secondi ma consuma di più; chi sta in scia risparmia energia. Se tirano tutti e due, nessuno guadagna e consumano entrambi di più. Fuori vista, tirare è solo più veloce e più faticoso.</p>'+
+  '<p><b>Volata:</b> decide chi ha il capitano con la migliore statistica VOL ancora fresca. Un gregario veloce (VOL 6 o più) in testa alla fila lancia il capitano: +5%.</p>'+
+  '<p><b>Aiuti</b> (massimo 3, uno per tratto, l\'avversario non li vede finché scattano):</p><ul>'+lista+'</ul>'+
+  '<p><b>Gara:</b> quando entrambi confermano il piano, parte la simulazione. Niente dadi: conta solo come avete pianificato.</p></details></div>'+
+  '<div id="prec"></div>'+
+  '<div class="card"><h2>1. Scegli la squadra</h2><div id="secSquadra"></div></div>'+
+  '<div class="card"><h2>2. Pianifica i 10 tratti</h2><div id="secPiano"></div></div>'+
+  '<div class="card"><div id="stato"></div></div>'+
+  '<div class="card"><h3>Registro</h3><div class="reg" id="reg"></div></div></div>';
+  legaEsci();
+  drawPrec();drawSquadra();drawPiano();drawStato();
+  $('#secSquadra').addEventListener('click',clickSquadra);
+  $('#secPiano').addEventListener('click',clickPiano);
+  $('#secPiano').addEventListener('change',cambioAiuto);
+}
+function drawPrec(){
+  const st=riga.stato,box=$('#prec');if(!box)return;
+  if(!st.prec){box.innerHTML='';return;}
+  const o=ruolo==='A'?'B':'A',p=st.prec[o];
+  if(!p){box.innerHTML='';return;}
+  const aid=p.aiuti.slice().sort((a,b)=>a.t-b.t).map(a=>TT.AIUTI[a.tipo].nome+' (tratto '+(a.t+1)+')').join(', ')||'nessuno';
+  box.innerHTML='<div class="card"><h3>Rivincita: cosa ha fatto l\'avversario la volta scorsa</h3><p style="margin:0">Squadra: <b>'+
+    [p.cap].concat(p.greg).map(x=>esc(TT.breve(x))).join(', ')+'</b> (capitano '+esc(TT.breve(p.cap))+'). Aiuti: '+esc(aid)+'. Stesso percorso, ma può aver cambiato idea.</p></div>';
+}
+function drawSquadra(){
+  const box=$('#secSquadra');if(!box)return;
+  const lock=!!riga.stato.piani[ruolo];
+  const caps=TT.CAPS.map(id=>cardRider(id,bozza.cap===id)).join('');
+  const gre=TT.GREG.map(id=>cardRider(id,bozza.greg.indexOf(id)>=0)).join('');
+  box.innerHTML=(lock?'<p class="ok">Piano confermato: la squadra non si cambia più.</p>':'')+
+  '<h3>Capitano (1)</h3><div class="grid">'+caps+'</div><h3 style="margin-top:12px">Gregari (2)</h3><div class="grid">'+gre+'</div>'+
+  '<p class="mut" style="margin:8px 0 0">Tutti i capitani valgono 36 punti, tutti i gregari 28: cambia solo il profilo. Puoi scegliere gli stessi corridori dell\'avversario.</p>';
+  if(lock)box.style.pointerEvents='none';
+}
+function clickSquadra(e){
+  const c=e.target.closest('.rc');if(!c)return;
+  if(riga.stato.piani[ruolo])return;
+  const id=c.dataset.id;
+  if(TT.RIDER[id].cap)bozza.cap=(bozza.cap===id?null:id);
+  else{
+    const i=bozza.greg.indexOf(id);
+    if(i>=0)bozza.greg.splice(i,1);
+    else{bozza.greg.push(id);if(bozza.greg.length>2)bozza.greg.shift();}
+  }
+  normalizza();salvaBozza();drawSquadra();drawPiano();drawStato();
+}
+const OPT_AIUTI=['rif','carica','primi','ultimi','fora'];
+function drawPiano(){
+  const box=$('#secPiano');if(!box)return;
+  const st=riga.stato,lock=!!st.piani[ruolo];
+  if(!bozza.ordine.length){box.innerHTML='<p class="mut">Scegli un capitano e due gregari per compilare il piano.</p>';return;}
+  const nA=bozza.aiuti.length;
+  let h='<div class="row"><button id="bTutti"'+(lock?' disabled':'')+'>Applica ordine e scia/tira del tratto 1 a tutti</button><span class="mut">Tocca due corridori di un tratto per scambiarli. Il numero giallo è la loro statistica su quel terreno. ★ = capitano.</span></div>';
+  st.tratti.forEach(function(tr,s){
+    const T=TT.TER[tr.tipo],si=TT.STAT.indexOf(T.stat);
+    const chips=bozza.ordine[s].map(function(id,p){
+      const on=selChip&&selChip.s===s&&selChip.p===p;
+      return'<button class="chip'+(on?' on':'')+'" data-s="'+s+'" data-p="'+p+'"'+(lock?' disabled':'')+'><small>'+(p+1)+'°</small> '+esc(TT.breve(id))+(id===bozza.cap?' ★':'')+' <b>'+TT.RIDER[id].s[si]+'</b></button>';
+    }).join('');
+    const a=bozza.aiuti.find(x=>x.t===s);
+    const opts='<option value="">— nessun aiuto —</option>'+OPT_AIUTI.map(function(k){
+      const dis=(!a&&nA>=3)||(k==='fora'&&tr.tipo==='volata');
+      return'<option value="'+k+'"'+(a&&a.tipo===k?' selected':'')+(dis?' disabled':'')+'>'+esc(TT.AIUTI[k].nome)+'</option>';
+    }).join('');
+    h+='<div class="tr"><div><span class="tb '+T.sig+'">'+T.sig+'</span> <b>Tratto '+(s+1)+'</b><br><span class="mut" style="font-size:12px">'+tr.km+' km'+(tr.pend?' · '+tr.pend+'%':'')+'</span>'+
+       (s>0&&!lock?'<button class="cp" data-s="'+s+'">↓ come sopra</button>':'')+'</div>'+
+       '<div class="chips">'+chips+'</div>'+
+       '<button class="stb '+bozza.stance[s]+'" data-s="'+s+'"'+(lock?' disabled':'')+'>'+(bozza.stance[s]==='tira'?'TIRA':'SCIA')+'</button>'+
+       '<select data-s="'+s+'"'+(lock?' disabled':'')+'>'+opts+'</select></div>';
+  });
+  box.innerHTML=h;
+}
+function clickPiano(e){
+  if(riga.stato.piani[ruolo])return;
+  const t=e.target;
+  const chip=t.closest('.chip'),stb=t.closest('.stb'),cp=t.closest('.cp'),tutti=t.closest('#bTutti');
+  if(chip){
+    const s=+chip.dataset.s,p=+chip.dataset.p;
+    if(selChip&&selChip.s===s&&selChip.p!==p){const o=bozza.ordine[s];const x=o[selChip.p];o[selChip.p]=o[p];o[p]=x;selChip=null;salvaBozza();}
+    else if(selChip&&selChip.s===s&&selChip.p===p)selChip=null;
+    else selChip={s:s,p:p};
+    drawPiano();drawStato();
+  }else if(stb){
+    const s=+stb.dataset.s;bozza.stance[s]=bozza.stance[s]==='tira'?'scia':'tira';salvaBozza();drawPiano();drawStato();
+  }else if(cp){
+    const s=+cp.dataset.s;bozza.ordine[s]=bozza.ordine[s-1].slice();bozza.stance[s]=bozza.stance[s-1];selChip=null;salvaBozza();drawPiano();drawStato();
+  }else if(tutti){
+    for(let s=1;s<bozza.ordine.length;s++){bozza.ordine[s]=bozza.ordine[0].slice();bozza.stance[s]=bozza.stance[0];}
+    selChip=null;salvaBozza();drawPiano();drawStato();
+  }
+}
+function cambioAiuto(e){
+  const sel=e.target.closest('select');if(!sel||riga.stato.piani[ruolo])return;
+  const s=+sel.dataset.s,v=sel.value;
+  bozza.aiuti=bozza.aiuti.filter(a=>a.t!==s);
+  if(v&&bozza.aiuti.length<3)bozza.aiuti.push({t:s,tipo:v});
+  salvaBozza();drawPiano();drawStato();
+}
+function drawStato(){
+  const box=$('#stato');if(!box)return;
+  const st=riga.stato,o=ruolo==='A'?'B':'A',mio=st.piani[ruolo];
+  const errs=TT.valida(bozza,st.tratti);
+  const nAid=bozza.aiuti.length;
+  let h='';
+  h+='<p style="margin:0 0 6px">Avversario ('+esc(st.giocatori[o].nome)+'): '+(st.piani[o]?'<b class="ok">ha confermato il piano</b>':'<span class="warn">sta ancora pensando</span>')+'</p>';
+  if(mio){
+    h+='<p class="ok" style="margin:0"><b>Il tuo piano è confermato.</b> '+(st.piani[o]?'Si parte!':'Appena conferma anche lui parte la gara.')+'</p>';
+  }else{
+    h+='<p class="mut" style="margin:0 0 8px">Aiuti piazzati: '+nAid+'/3.'+(errs.length&&bozza.cap?' Manca: '+esc(errs[0])+'.':'')+(bozza.cap&&bozza.greg.length===2?'':' Scegli capitano e 2 gregari.')+'</p>'+
+       '<button class="big" id="bConferma"'+(errs.length?' disabled':'')+'>Conferma il piano</button> <span class="mut">Dopo la conferma non si cambia più.</span><div class="err" id="errP"></div>';
+  }
+  box.innerHTML=h;
+  const b=$('#bConferma');if(b)b.onclick=confermaPiano;
+  const r=$('#reg');if(r)r.innerHTML=(st.registro||[]).slice(-10).reverse().map(x=>'<div>'+esc(new Date(x.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}))+' · '+esc(x.testo)+'</div>').join('');
+}
+async function confermaPiano(){
+  const errs=TT.valida(bozza,riga.stato.tratti);
+  if(errs.length){$('#errP').textContent=errs[0];return;}
+  $('#bConferma').disabled=true;
+  const piano=JSON.parse(JSON.stringify(bozza));
+  try{
+    await mutate(function(s){
+      if(s.piani[ruolo])return false;
+      s.piani[ruolo]=piano;
+      s.registro.push(reg(ruolo,s.giocatori[ruolo].nome+' ha confermato il piano'));
+    });
+    if(!riga.stato.piani[ruolo]){const r=await sb.from('tappa').select('*').eq('codice',codice).single();riga=r.data;}
+    render(true);
+  }catch(e){$('#errP').textContent='Errore: '+(e.message||e);$('#bConferma').disabled=false;}
+}
+
+/* ---------- gara ---------- */
+function stopAnim(){if(anim){cancelAnimationFrame(anim);anim=null;}}
+function vistaGara(){
+  const st=riga.stato;
+  evShown=0;mult=1;
+  sim=TT.simula(st.tratti,st.piani.A,st.piani.B,st.seed);
+  G=geometria(st.tratti);
+  const o=ruolo==='A'?'B':'A';
+  const dots=['A','B'].map(k=>sim.squadre[k].riders.map(function(r){
+    const cap=r.id===sim.squadre[k].cap;
+    return'<g id="d'+k+r.id+'"><circle r="'+(cap?7.5:5)+'" fill="'+COL[k]+'" stroke="'+(cap?'#fff':'#0f1420')+'" stroke-width="'+(cap?2.2:1.5)+'"/>'+(cap?'<text y="3.4" text-anchor="middle" font-size="9" font-weight="800" fill="#0f1420">C</text>':'')+'</g>';
+  }).join('')).join('');
+  app.innerHTML='<div class="wrap">'+intestazione()+
+  '<div class="card pistacard"><div class="topbar"><span id="lbTratto">Pronti al via</span><span id="lbTempo">0h00</span></div>'+
+  '<svg viewBox="0 0 1000 215" id="pista">'+svgPista(st.tratti,G)+'<g id="dots">'+dots+'</g></svg>'+
+  '<div class="gap" id="gap">—</div>'+
+  '<div class="ctrl"><button class="big" id="bVia">▶ Via!</button><button id="v1" class="on">1×</button><button id="v2">2×</button><button id="v4">4×</button><button id="bFine">⏭ Fine</button></div></div>'+
+  '<div class="two"><div id="sqMia"></div><div id="sqAvv"></div></div>'+
+  '<div class="card"><h3>Telecronaca</h3><div id="cronaca"></div></div>'+
+  '<div id="esito"></div>'+
+  '<div class="card"><h3>Registro</h3><div class="reg" id="reg"></div></div></div>';
+  legaEsci();
+  disegnaSquadre(o);
+  $('#bVia').onclick=parti;
+  $('#bFine').onclick=saltaFine;
+  [1,2,4].forEach(function(m){$('#v'+m).onclick=function(){mult=m;[1,2,4].forEach(x=>$('#v'+x).classList.toggle('on',x===m));};});
+  const r=$('#reg');if(r)r.innerHTML=(st.registro||[]).slice(-10).reverse().map(x=>'<div>'+esc(new Date(x.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}))+' · '+esc(x.testo)+'</div>').join('');
+  frame(0);
+  if(LS('tappa:'+codice+':visto')==='1')saltaFine();
+}
+function disegnaSquadre(o){
+  const st=riga.stato;
+  function blocco(k,full){
+    const s=sim.squadre[k];
+    const ids=[s.cap].concat(s.riders.map(r=>r.id).filter(x=>x!==s.cap));
+    return'<div class="card" style="padding:10px"><h3><span class="pill '+k+'">'+esc(st.giocatori[k].nome)+'</span> '+(full?'La tua squadra':'Squadra avversaria')+'</h3>'+
+    ids.map(function(id){
+      const r=TT.RIDER[id];
+      let h='<div class="rd" id="rc'+k+id+'" style="--c:'+COL[k]+'"><div class="rn"><b>'+esc(r.nome)+'</b><i>'+esc(r.nick)+'</i><span class="tag" hidden>COTTO</span><span class="role">'+(id===s.cap?'Capitano':'Gregario')+'</span></div>';
+      if(full){
+        h+='<div class="bar"><div class="fill"></div><span class="entxt"></span></div><div class="stats">'+r.s.map((v,i)=>'<span data-i="'+i+'"><em>'+SL[i]+'</em><b>'+v+'</b></span>').join('')+'</div>';
+      }else h+='<div class="opp">Caratteristiche segrete</div>';
+      return h+'</div>';
+    }).join('')+'</div>';
+  }
+  $('#sqMia').innerHTML=blocco(ruolo,true);
+  $('#sqAvv').innerHTML=blocco(o,false);
+}
+function segDi(km){
+  let s=0;for(let i=0;i<G.ks.length;i++){if(km>=G.ks[i]-1e-9)s=i;}
+  return s;
+}
+function frame(T){
+  Tcur=T;
+  const st=riga.stato;
+  let kmLead=0;
+  ['A','B'].forEach(function(k){
+    sim.squadre[k].riders.forEach(function(r){
+      const p=TT.posAt(r.pts,T);
+      if(p.km>kmLead)kmLead=p.km;
+      const s=Math.min(segDi(Math.min(p.km,sim.km-1e-6)),st.tratti.length-1);
+      const idx=Math.max(0,st.piani[k].ordine[s].indexOf(r.id));
+      const cx=G.X(p.km)-idx*7,cy=G.Y(p.km)-(k==='A'?13:5);
+      const g=$('#d'+k+r.id);
+      if(g){g.setAttribute('transform','translate('+cx.toFixed(1)+' '+cy.toFixed(1)+')');g.setAttribute('opacity',p.en<=0.01&&p.km<sim.km-0.01?'0.4':'1');}
+    });
+  });
+  const segL=Math.min(segDi(Math.min(kmLead,sim.km-1e-6)),st.tratti.length-1);
+  const tr=st.tratti[segL];
+  $('#lbTratto').textContent=T<=0?'Pronti al via':'Tratto '+(segL+1)+'/'+st.tratti.length+' · '+TT.TER[tr.tipo].nome+' '+tr.km+' km';
+  $('#lbTempo').textContent=ora(T);
+  /* distacco */
+  const ca=sim.squadre.A.riders.find(r=>r.id===sim.squadre.A.cap),cb=sim.squadre.B.riders.find(r=>r.id===sim.squadre.B.cap);
+  const pa=TT.posAt(ca.pts,T).km,pb=TT.posAt(cb.pts,T).km;
+  let gp='';
+  if(T<=0)gp='—';
+  else if(T>=sim.Tend){
+    const w=sim.res.vincitore;gp='<span style="color:'+COL[w]+'">'+esc(TT.breve(sim.squadre[w].cap))+'</span> vince per '+(sim.res.distacco<1?'meno di un secondo':fg(sim.res.distacco)+' secondi');
+  }else if(Math.abs(pa-pb)<1e-4)gp='Capitani appaiati';
+  else{
+    const lead=pa>pb?'A':'B',tr2=lead==='A'?cb:ca,leader=lead==='A'?ca:cb;
+    const km=Math.max(pa,pb);
+    const gap=Math.max(0,TT.tAtKm(tr2.pts,km)-T);
+    gp=gap<0.5?'Capitani appaiati':'<span style="color:'+COL[lead]+'">'+esc(TT.breve(sim.squadre[lead].cap))+'</span> davanti di '+fg(gap)+' s'+'<small>'+(gap<60?'In vista: scia e tira contano':'Fuori vista: ognuno corre per sé')+'</small>';
+  }
+  $('#gap').innerHTML=gp;
+  /* carte */
+  const si=TT.STAT.indexOf(tr.tipo?TT.TER[tr.tipo].stat:'P');
+  ['A','B'].forEach(function(k){
+    sim.squadre[k].riders.forEach(function(r){
+      const p=TT.posAt(r.pts,T),el=$('#rc'+k+r.id);if(!el)return;
+      const f=Math.max(0,Math.min(1,p.en/r.emax));
+      const cotto=p.en<=0.01&&p.km<sim.km-0.01&&T>0;
+      el.classList.toggle('cotto',cotto);
+      const tag=el.querySelector('.tag');if(tag)tag.hidden=!cotto;
+      if(k===ruolo){
+        const fill=el.querySelector('.fill');
+        fill.style.width=(f*100)+'%';fill.style.background=f>.5?'#4ade80':f>.2?'#fbbf24':'#f87171';
+        el.querySelector('.entxt').textContent=Math.round(p.en)+' / '+Math.round(r.emax);
+        TT.RIDER[r.id].s.forEach(function(v,i){
+          const c=el.querySelector('[data-i="'+i+'"]');if(!c)return;
+          const e=i===0?v:v*(0.5+0.5*f);
+          c.querySelector('b').textContent=(Math.round(e*10)/10).toString();
+          c.classList.toggle('dn',i>0&&f<0.97);
+          c.classList.toggle('cur',i===(si<0?1:si));
+        });
+      }
+    });
+  });
+  /* telecronaca */
+  const box=$('#cronaca');
+  while(evShown<sim.eventi.length&&sim.eventi[evShown].t<=T){
+    const e=sim.eventi[evShown++];
+    const d=document.createElement('div');
+    d.className='ev '+e.kind+(e.team?' t'+e.team:'');
+    d.innerHTML='<time>'+ora(e.t)+'</time>'+esc(e.txt);
+    box.insertBefore(d,box.firstChild);
+  }
+}
+function parti(){
+  stopAnim();
+  evShown=0;$('#cronaca').innerHTML='';
+  $('#esito').innerHTML='';
+  $('#bVia').disabled=true;$('#bVia').textContent='In gara…';
+  const scala=sim.Tend/75;
+  let last=performance.now(),T=0;
+  function tick(now){
+    const dt=Math.min(0.1,(now-last)/1000);last=now;
+    T+=dt*scala*mult;
+    if(T>=sim.Tend){frame(sim.Tend);fineGara();return;}
+    frame(T);anim=requestAnimationFrame(tick);
+  }
+  frame(0);anim=requestAnimationFrame(tick);
+}
+function saltaFine(){
+  stopAnim();
+  $('#cronaca').innerHTML='';evShown=0;
+  frame(sim.Tend);
+  fineGara();
+}
+function fineGara(){
+  stopAnim();
+  LS('tappa:'+codice+':visto','1');
+  const b=$('#bVia');b.disabled=false;b.textContent='↺ Rivedi la gara';
+  mostraEsito();
+  drawRivincita();
+}
+
+/* ---------- esito ---------- */
+function graficoEnergia(){
+  const W=600,H=150,x0=34,x1=590,y0=10,y1=120;
+  const X=km=>x0+(x1-x0)*km/sim.km,Y=f=>y1-(y1-y0)*f;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">';
+  riga.stato.tratti.forEach(function(t,i){
+    const a=G.ks[i];
+    s+='<rect x="'+X(a)+'" y="'+y0+'" width="'+(X(a+t.km)-X(a))+'" height="'+(y1-y0)+'" fill="#fff" opacity="'+(i%2?0.02:0.06)+'"/>';
+    s+='<text x="'+((X(a)+X(a+t.km))/2)+'" y="'+(y1+14)+'" text-anchor="middle" fill="#8b97b3" font-size="9">'+TT.TER[t.tipo].sig+'</text>';
+  });
+  [0,0.5,1].forEach(f=>{s+='<text x="'+(x0-4)+'" y="'+(Y(f)+3)+'" text-anchor="end" fill="#8b97b3" font-size="9">'+Math.round(f*100)+'%</text><line x1="'+x0+'" x2="'+x1+'" y1="'+Y(f)+'" y2="'+Y(f)+'" stroke="#2b3856"/>';});
+  ['A','B'].forEach(function(k){
+    const r=sim.squadre[k].riders.find(x=>x.id===sim.squadre[k].cap);
+    const d=r.pts.map((p,i)=>(i?'L':'M')+X(p.km).toFixed(1)+' '+Y(Math.max(0,p.en/r.emax)).toFixed(1)).join(' ');
+    s+='<path d="'+d+'" fill="none" stroke="'+COL[k]+'" stroke-width="2.2"/>';
+  });
+  return s+'</svg>';
+}
+function motivo(sg,s,me,opp,delta){
+  const rs=[];
+  const mioAid=sg.aid[me],suoAid=sg.aid[opp];
+  if(suoAid==='fora'&&sg.punt[me])rs.push('foratura piazzata dall\'avversario: colpito '+TT.breve(sg.punt[me]));
+  if(mioAid==='fora'&&sg.punt[opp])rs.push('la tua foratura ha colpito '+TT.breve(sg.punt[opp]));
+  if(suoAid==='rif'||suoAid==='carica')rs.push('lui aveva un '+(suoAid==='rif'?'rifornimento':'muro di tifosi'));
+  if(mioAid==='rif'||mioAid==='carica')rs.push('tu avevi un '+(mioAid==='rif'?'rifornimento':'muro di tifosi'));
+  if(sg.vista&&sg.st[me]!==sg.st[opp])rs.push(sg.st[me]==='scia'?'lui tirava mentre tu stavi a ruota':'tu tiravi mentre lui stava a ruota');
+  else if(sg.vista&&sg.st[me]==='tira'&&sg.st[opp]==='tira')rs.push('si tirava in due: nessun vantaggio, solo fatica');
+  const si=TT.STAT.indexOf(TT.TER[sg.tipo].stat);
+  const lm=sg.lead[me],lo=sg.lead[opp];
+  if(lm&&lo&&sg.tipo!=='volata'){
+    const a=TT.RIDER[lm].s[si],b=TT.RIDER[lo].s[si];
+    if(Math.abs(a-b)>=2)rs.push('in testa '+(a>b?'il tuo ':'il suo ')+TT.breve(a>b?lm:lo)+' ('+Math.max(a,b)+') contro '+(a>b?'':'il tuo ')+TT.breve(a>b?lo:lm)+' ('+Math.min(a,b)+')');
+  }
+  if(sg.tipo==='volata')rs.push('volata: pesa la statistica VOL dei capitani');
+  return rs.slice(0,3).join('; ')||'terreno e forma del momento';
+}
+function mostraEsito(){
+  const st=riga.stato,me=ruolo,opp=me==='A'?'B':'A',w=sim.res.vincitore,win=w===me;
+  const d=sim.res.distacco;
+  const dtxt=d<1?'per meno di un secondo':'per '+fg(d)+' secondi';
+  let h='<div class="card esito"><h2 style="color:'+(win?'#4ade80':'#f87171')+'">'+(win?'🏆 Hai vinto '+dtxt+'!':'Sconfitta '+dtxt)+'</h2>'+
+    '<p class="mut" style="margin:0">'+(win?'Il contratto è tuo, '+esc(st.giocatori[me].nome)+'.':esc(st.giocatori[opp].nome)+' firma il mutuo a tasso zero.')+'</p></div>';
+  /* tratti decisivi */
+  const righe=sim.segs.map(function(sg,s){
+    const prev=s?sim.segs[s-1].gap1:0;
+    const gm=me==='A'?1:-1;
+    const delta=(sg.gap1-prev)*gm;
+    return{s:s,sg:sg,delta:delta};
+  });
+  h+='<div class="card"><h3>Energia dei due capitani</h3>'+graficoEnergia()+
+     '<p class="mut" style="margin:4px 0 0"><span style="color:'+COL.A+'">■</span> rossi · <span style="color:'+COL.B+'">■</span> azzurri</p></div>';
+  h+='<div class="card"><h3>Com\'è andata tratto per tratto</h3><table><tr><th>Tratto</th><th>Tu</th><th>Lui</th><th>Secondi</th><th>Perché</th></tr>'+
+    righe.map(function(x){
+      const sg=x.sg;
+      const nm=k=>sg.lead[k]?TT.breve(sg.lead[k]):'—';
+      const dd=Math.abs(x.delta)<0.5?'0':(x.delta>0?'+':'−')+fg(x.delta);
+      return'<tr><td><span class="tb '+TT.TER[sg.tipo].sig+'">'+TT.TER[sg.tipo].sig+'</span> '+(x.s+1)+'</td><td>'+(sg.st[me]==='tira'?'tira':'scia')+' · '+esc(nm(me))+'</td><td>'+(sg.st[opp]==='tira'?'tira':'scia')+' · '+esc(nm(opp))+'</td>'+
+        '<td class="'+(x.delta>=0.5?'pos':x.delta<=-0.5?'neg':'')+'">'+dd+'</td><td>'+(Math.abs(x.delta)>=2?esc(motivo(sg,x.s,me,opp,x.delta)):'<span class="mut">—</span>')+'</td></tr>';
+    }).join('')+'</table><p class="mut" style="margin:6px 0 0">Secondi guadagnati (+) o persi (−) dal tuo capitano su quel tratto. In testa = chi guidava la fila.</p></div>';
+  /* squadra avversaria svelata */
+  const po=st.piani[opp];
+  const aid=po.aiuti.slice().sort((a,b)=>a.t-b.t).map(a=>esc(TT.AIUTI[a.tipo].nome)+' (tratto '+(a.t+1)+')').join(', ')||'nessuno';
+  h+='<div class="card"><h3>La squadra di '+esc(st.giocatori[opp].nome)+' svelata</h3><div class="grid">'+[po.cap].concat(po.greg).map(id=>cardRider(id,id===po.cap)).join('')+'</div>'+
+     '<p style="margin:8px 0 0">Aiuti: <b>'+aid+'</b></p></div>';
+  h+='<div class="card" id="rivBox"></div>';
+  $('#esito').innerHTML=h;
+}
+function drawRivincita(){
+  const box=$('#rivBox');if(!box)return;
+  const st=riga.stato,riv=st.rivincita;
+  if(riv){
+    if(riv.da===ruolo)box.innerHTML='<h3>Rivincita pronta</h3><p class="mut">Codice '+esc(riv.codice)+'. Aspetto che l\'avversario entri.</p><button class="big" id="bVai">Vai alla nuova partita</button>';
+    else box.innerHTML='<h3>'+esc(st.giocatori[riv.da].nome)+' vuole la rivincita'+(riv.tipo==='stesso'?' sullo stesso percorso':' su un nuovo percorso')+'</h3><button class="big" id="bVai">Entra nella rivincita</button>';
+    $('#bVai').onclick=vaiRivincita;
+  }else{
+    box.innerHTML='<h3>Ancora?</h3><div class="row"><button class="big" id="bR1">Rivincita (stesso percorso)</button><button id="bR2">Nuova tappa</button></div>'+
+      '<p class="mut" style="margin:4px 0 0">Con lo stesso percorso vedrai il piano che l\'avversario ha usato, ma può cambiarlo.</p><div class="err" id="errR"></div>';
+    $('#bR1').onclick=function(){lanciaRivincita('stesso');};
+    $('#bR2').onclick=function(){lanciaRivincita('nuovo');};
+  }
+}
+async function lanciaRivincita(tipo){
+  try{
+    const st=riga.stato;
+    const seed=tipo==='stesso'?st.seed:nuovoSeed();
+    const nuovo={seed:seed,tratti:TT.corsa(seed),giocatori:{A:st.giocatori.A,B:st.giocatori.B},piani:{A:null,B:null},
+      registro:[reg(ruolo,st.giocatori[ruolo].nome+' ha lanciato la rivincita')],rivincita:null,prec:tipo==='stesso'?{A:st.piani.A,B:st.piani.B}:null};
+    const row=await inserisci(nuovo);
+    LS('tappa:'+row.codice,ruolo);
+    await mutate(function(s){if(s.rivincita)return false;s.rivincita={codice:row.codice,da:ruolo,tipo:tipo};});
+    const r=await sb.from('tappa').select('*').eq('codice',codice).single();
+    riga=r.data;drawRivincita();
+  }catch(e){const x=$('#errR');if(x)x.textContent='Errore: '+(e.message||e);}
+}
+async function vaiRivincita(){
+  const riv=riga.stato.rivincita;if(!riv)return;
+  try{
+    const r=await sb.from('tappa').select('*').eq('codice',riv.codice).single();
+    if(r.error)throw r.error;
+    apri(riv.codice,ruolo,r.data);
+  }catch(e){alert('Errore: '+(e.message||e));}
+}
+
+/* ---------- avvio ---------- */
+(async function(){
+  const c=LS('tappa:ultima'),r=c&&LS('tappa:'+c);
+  if(c&&(r==='A'||r==='B')){
+    try{
+      const d=await sb.from('tappa').select('*').eq('codice',c).maybeSingle();
+      if(d.data){apri(c,r,d.data);return;}
+    }catch(e){}
+  }
+  vistaLobby();
+})();
+})();
+</script>
+</body>
+</html>
